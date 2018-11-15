@@ -23,7 +23,7 @@ ylabel(h, 'Luminance (cd/m2)');
 colormap gray;
 
 %% run im2minPS
-[minPS, minPSraw, minPSstruct] = im2minPS(Limg);
+[minPS, minPSraw, minPSstruct] = im2minPS(Limg)
 
 % minPS has a vector of 29 parameters.
 % for the definition of each parameter, see minPS_list.pdf
@@ -37,7 +37,9 @@ colormap gray;
 % be completely immuned to the dependency on the dataset. Moreover, the
 % dimensionality of linear cross position and energy cross position was
 % reduced using PCA, which is also dependent on the dataset. Thus, it is
-% impossible to generate a "raw" value of minPS parameters.
+% impossible to generate a "raw" value of minPS parameters, but one can
+% still use the relative magnitude of these parameters across images to fit
+% neural responses etc.
 
 % minPSstruct stores the same data (minPSraw) in a struct format, which
 % is directly related to the output of textureAnalysis in Portilla &
