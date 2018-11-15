@@ -1,15 +1,14 @@
-function [params] = textureAnalysis_acr(im0)
+function [params] = textureAnalysis_acr(im0, Nsc, Nor, Na)
 
-% The code is slightly modified from textureAnalysis.m created by J
-% Portilla & E Simoncelli to be applicable to minPS
-% There are three changes
-%   1) The pixel intensities are converted to luminances assuming the gamma
-%   of 2.2
-%   2) The average and sd of luminances are set to 15 and 6 cd/m2, respectively.
-%   This is to make images compatible with image dataset in Okazawa et al.
-%   (2014), since there are normalization processes based on the dataset in generating minPS.
-%   3) 'Linear cross Position' is computed using subbands rather than
-%   low-pass images.
+% The code is slightly modified from textureAnalysis.m created by 
+% J Portilla & E Simoncelli to be applicable to minPS
+%   The main modification is that 'Linear cross Position' is computed 
+%   using subbands so that we get linear cross position of all subband as
+%   for 'Energy cross position'. In the original code, linear cross
+%   position is computed for lowpass band (orientation independent)
+%
+%   The part Gouki modified is tagged "Okazawa".
+%   G Okazawa (2015)
 %
 
 
@@ -37,26 +36,14 @@ function [params] = textureAnalysis_acr(im0)
 %
 % Copyright, Center for Neural Science, New York University, January 2001.
 % All rights reserved.
-%
 
-
-%% pre-process image (G Okazawa) %%
-Nsc = 4;
-Nor = 4;
-Na = 7;
-
-im0 = double(im0);
-im0 = (im0/max(im0(:))).^(2.2);
-im0 = (im0 - mean(im0(:)))/std(im0(:)) * 6 + 15;
-
-%% pre-process image (G Okazawa) %%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Warn = 0;  % Set to 1 if you want to see warning messages
 
 %% Check required args are passed
-if (nargin < 1)
+if (nargin < 4)
   error('Function called with too few input arguments');
 end
 
@@ -93,7 +80,7 @@ statg0 = [mean0 var0 skew0 kurt0 mn0 mx0];
 % artificially generated, to avoid instability crated by symmetric
 % conditions at the synthesis stage.
 
-% im0 = im0 + (mx0-mn0)/1000*randn(size(im0));
+% im0 = im0 + (mx0-mn0)/1000*randn(size(im0)); % Removed because unneccesary for minPS: Okazawa
 
 %% Build the steerable pyramid
 [pyr0,pind0] = buildSCFpyr(im0,Nsc,Nor-1);
@@ -110,7 +97,7 @@ pyr0(pyrBandIndices(pind0,nband)) = ...
 rpyr0 = real(pyr0);
 apyr0 = abs(pyr0);
 
-% figure(gcf)
+% figure(gcf) % Removed: no need to show figure. Okazawa
 % clf
 % showIm(im0,'auto',1); title('Original');  drawnow
 
@@ -123,7 +110,7 @@ for nband = 1:size(pind0,1)
 end
 
 %% Compute central autoCorr of lowband
-acr = NaN * ones(Na,Na,Nsc+1);
+% acr = NaN * ones(Na,Na,Nsc+1); % do not compute acr of lowband: Okazawa
 nband = size(pind0,1);
 ch = pyrBand(pyr0,pind0,nband);
 [mpyr,mpind] = buildSFpyr(real(ch),0,0);
@@ -135,7 +122,7 @@ cy = Nly/2+1;
 cx = Nlx/2+1;
 ac = fftshift(real(ifft2(abs(fft2(im)).^2)))/prod(size(ch));
 ac = ac(cy-le:cy+le,cx-le:cx+le);
-acr(la-le+1:la+le+1,la-le+1:la+le+1,Nsc+1) = ac;
+% acr(la-le+1:la+le+1,la-le+1:la+le+1,Nsc+1) = ac; % do not compute acr of lowband: Okazawa
 skew0p = zeros(Nsc+1,1);
 kurt0p = zeros(Nsc+1,1);
 vari = ac(le+1,le+1);
@@ -167,7 +154,7 @@ for nsc = Nsc:-1:1,
     ac = fftshift(real(ifft2(abs(fft2(ch)).^2)))/prod(size(ch));
     ac = ac(cy-le:cy+le,cx-le:cx+le);
     acr(la-le+1:la+le+1,la-le+1:la+le+1,nsc,nor) = ac;
-       % acr is computed using a subband rather than a low-pass image (G Okazawa)
+       % acr is computed using a subband rather than a low-pass image: Okazawa
   end
 
   %% Combine ori bands
@@ -185,6 +172,7 @@ for nsc = Nsc:-1:1,
   im = im + ch;  
   ac = fftshift(real(ifft2(abs(fft2(im)).^2)))/prod(size(ch));
   ac = ac(cy-le:cy+le,cx-le:cx+le);
+%  acr(la-le+1:la+le+1,la-le+1:la+le+1,nsc) = ac; % do not compute acr of lowband: Okazawa
   vari = ac(le+1,le+1);
   if vari/var0 > 1e-6,
         skew0p(nsc) = mean2(im.^3)/vari^1.5;
