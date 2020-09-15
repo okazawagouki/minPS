@@ -8,17 +8,12 @@ The program extracts a collection of image statistics called minPS from an image
 
 ## Requirement
 The code is tested under Matlab 2018a.
-It requires [matlab pyramid tool](http://www.cns.nyu.edu/~eero/STEERPYR/) and [texture synthesis tool](http://www.cns.nyu.edu/~lcv/texture/) developped by Simoncelli lab. Those codes are already included in this package.
+It requires [matlab pyramid tool](http://www.cns.nyu.edu/~eero/STEERPYR/) and [texture synthesis tool](http://www.cns.nyu.edu/~lcv/texture/) developped by Simoncelli lab. Those codes are included in this package.
 ## Package
 
 [im2minPS.m](./im2minPS.m) - main code to convert images into minPS statistics.
 
 [tutorial_im2minPS.m](./tutorial_im2minPS.m) - tutorial code of im2minPS.m including some details necessary to correctly run the program.
-
-
-## Distribution of this code
-
-Because this package contains codes developped by Simoncelli lab, distribution of this package is strictly prohibited.
 
 
 ## Reference
